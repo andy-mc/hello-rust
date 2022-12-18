@@ -1,33 +1,34 @@
 use std::io;
 
 fn main() {
+    let temp = input_temp();
+    let units = input_units();
+
+    match (temp, units) {
+        (Ok(temp), Ok(units)) => {
+            if units == "C" {
+                let temp_f = temp * 9.0 / 5.0 + 32.0;
+                println!("{:.2}°C is equal to {:.2}°F", temp, temp_f);
+            } else if units == "F" {
+                let temp_c = (temp - 32.0) * 5.0 / 9.0;
+                println!("{:.2}°F is equal to {:.2}°C", temp, temp_c);
+            } else {
+                println!("Please enter a valid unit (C or F)");
+            }
+        },
+        (Err(e), _) => println!("Error reading temperature: {}", e),
+        (_, Err(e)) => println!("Error reading units: {}", e),
+    }
+}
+
+fn input_temp() -> Result<f64, String> {
     println!("Enter the temperature:");
 
     let mut temp_input = String::new();
-    io::stdin().read_line(&mut temp_input).expect("Failed to read line");
+    io::stdin().read_line(&mut temp_input).map_err(|e| e.to_string())?;
 
-    let temp: f64 = match temp_input.trim().parse() {
-        Ok(num) => num,
-        Err(_) => {
-            println!("Please enter a valid number");
-            return;
-        },
-    };
-
-    println!("Enter the units (C or F):");
-
-    let mut units_input = String::new();
-    io::stdin().read_line(&mut units_input).expect("Failed to read line");
-
-    let units = units_input.trim();
-
-    if units == "C" {
-        let temp_f = temp * 9.0 / 5.0 + 32.0;
-        println!("{}°C is equal to {}°F", temp, temp_f);
-    } else if units == "F" {
-        let temp_c = (temp - 32.0) * 5.0 / 9.0;
-        println!("{}°F is equal to {}°C", temp, temp_c);
-    } else {
-        println!("Please enter a valid unit (C or F)");
-    }
+    temp_input.trim().parse().map_err(|e| e.to_string())
 }
+
+fn input_units() -> Result<String, String> {
+    println!("Enter the units (
